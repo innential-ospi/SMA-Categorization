@@ -129,17 +129,21 @@ def gpt_step_by_step():
     global description_global
     global filename_global
 
-    description = description_global
-    filename = filename_global
+    if description_global:
+        description = description_global
+        filename = filename_global
 
-    print("GPT 3.5 step by step")
-    print("Problem describtion:",description,"Filename:", filename)
+        print("GPT 3.5 step by step")
+        print("Problem describtion:",description,"Filename:", filename)
 
-    path = find_path_to_database() + '/' + filename
+        path = find_path_to_database() + '/' + filename
 
-    solution, one_page = find_solution_in_page(path, description)
-    response = ask_gpt(description, path, solution, one_page)
+        solution, one_page = find_solution_in_page(path, description)
+        response = ask_gpt(description, path, solution, one_page)
+    else:
+        response = "No code description found"
 
+    print(response)
     return jsonify(response=response)
 
 #Request to get the pdf file
@@ -171,8 +175,8 @@ def search():
     print("Similar documents: ", sorted_manuals)
 
     path = find_path_to_database() + '/' + sorted_manuals[0]
-    solution = "No code describtion found"
-    step_by_step = "No describtion found"
+    solution = "No code description found"
+    step_by_step = "No description found"
 
     # Check if the description exists
     if description:
