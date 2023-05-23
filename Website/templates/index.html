@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Service Console</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      min-height: 100vh;
+      background-color: #f0f6ff;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .warning {
+      color: red;
+    }
+
+    .title-bar {
+      background-color: #888888;
+      color: #fff;
+      padding: 1px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      width: 10;
+      margin: 1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    select {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .results-container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: left;
+      margin-left: 30px;
+      max-width: 1000px; /* Set the maximum width */
+      overflow: auto; /* Add a scrollbar if the content exceeds the width */
+    }
+
+    #output {
+      margin-top: 10px;
+      max-width: 1000x; /* Set the maximum width for the result block */
+      white-space: pre-wrap; /* Enable text wrapping within the pre element */
+      word-break: break-word; /* Allow long words to break and wrap */
+
+     #stepByStepButton {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-bar">
+      <h1>Service Console</h1>
+    </div>
+
+    <form id="searchForm">
+      <label for="case-owner">Case Owner:</label>
+      <select id="case-owner" name="case-owner">
+        <option value="name1">Kian Rogers</option>
+        <option value="name2">John Johnson</option>
+        <option value="name3">Winston Brown</option>
+        <option value="name4">Spencer Mitchell</option>
+
+      </select><br><br>
+
+      <label for="serial-number">Serial Number:</label>
+      <input type="text" id="serial-number" name="serial-number"><br><br>
+
+      <label for="material-type">Material Type:</label>
+      <select id="material-type" name="material-type">
+        <option value="Residential & Commercial inverters">Residential & Commercial inverters</option>
+        <option value="Battery Inverters">Battery Inverters</option>
+        <option value="Solar Inverters">Solar Inverters</option>
+        <option value="Hybrid Inverters">Hybrid Inverters</option>
+        <option value="System Solutions & Packages">System Solutions & Packages</option>
+        <option value="DC Technology">DC Technology</option>
+        <option value="Commercial power storage solution">Commercial power storage solution"</option>
+        <option value="E-mobility charging solutions">E-mobility charging solutions</option>
+      </select><br><br>
+
+      <label for="material">Material:</label>
+      <select id="material" name="material">
+        <option value="material1">139F5009-AT</option>
+        <option value="material2">140F5009-AT</option>
+        <option value="material3">105F5009-AT</option>
+        <option value="material4">203V5009-AT</option>
+      </select><br><br>
+
+      <label for="event-code">Event/Error Code:</label>
+      <select id="event-code" name="event-code">
+        <option value="code1">213</option>
+        <option value="code2">214</option>
+        <option value="code3">215</option>
+        <option value="code4">216</option>
+      </select><br><br>
+
+
+      <label for="event-description">Event/Error Code Description:</label>
+      <textarea id="event-description" name="event-description"></textarea><br><br>
+
+      <label for="used-by">Used By:</label>
+      <select id="used-by" name="used-by">
+        <option value="Service">Service</option>
+        <option value="Private">Private</option>
+        <option value="Technician">Technician</option>
+      </select><br><br>
+
+      <label for="type">Type:</label>
+      <select id="type" name="type">
+        <option value="Repair">Repair</option>
+        <option value="Replacement">Replacement</option>
+      </select><br><br>
+
+      <input type="submit" value="Submit">
+    </form>
+  </div>
+
+  <div class="results-container">
+    <h2>Results</h2>
+    <div id="output">
+      <!-- Results will be displayed here -->
+    </div>
+    <button id="stepByStepButton">Step by step GPT</button>
+  </div>
+
+  <script>
+    document.getElementById("searchForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+
+      var caseOwner = document.getElementById("case-owner").value;
+      var serialNumber = document.getElementById("serial-number").value;
+      var materialType = document.getElementById("material-type").value;
+      var material = document.getElementById("material").value;
+      var eventCode = document.getElementById("event-code").value;
+      var eventDescription = document.getElementById("event-description").value;
+      var usedBy = document.getElementById("used-by").value;
+      var type = document.getElementById("type").value;
+
+      var data = {
+        caseOwner: caseOwner,
+        serialNumber: serialNumber,
+        materialType: materialType,
+        material: material,
+        eventCode: eventCode,
+        eventDescription: eventDescription,
+        usedBy: usedBy,
+        type: type
+      };
+
+      // Send POST request to Flask app
+      fetch("/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(result) {
+          // Update HTML with search results
+          var outputElement = document.getElementById("output");
+          if (result.error) {
+            outputElement.innerHTML = "<p>" + result.error + "</p>";
+          } else {
+            var exactFile = result.exact_file;
+            var similarFiles = result.similar_files;
+            var page_solution = result.solution;
+            var stepBy = result.step_by_step;
+
+            // Highlight exact file and provide link to open PDF in a new window
+            outputElement.innerHTML = "<p><strong>Documentation:</strong> <a href='/open-pdf/" + exactFile + "' target='_blank'>" + exactFile + "</a></p>";
+
+            // Highlight similar files and provide links to open PDFs in new windows
+            outputElement.innerHTML += "<p><strong>Page:</strong> " + page_solution + "</p>"; // Add the page information
+
+
+
+
+            outputElement.innerHTML += "<p><strong>Similar documents:</strong></p>";
+            for (var i = 0; i < similarFiles.length; i++) {
+              outputElement.innerHTML += "<li><a href='/open-pdf/" + similarFiles[i] + "'target='_blank' rel='noopener noreferrer'>" + similarFiles[i] + "</a></li>";
+            }
+            outputElement.innerHTML += "</ul>";
+          }
+        })
+        .catch(function(error) {
+          console.log("Error:", error);
+        });
+    });
+
+
+    document.getElementById("stepByStepButton").addEventListener("click", function() {
+    // Fetch the response from the /gpt-step-by-step endpoint
+    fetch("/gpt-step-by-step", {
+      method: "POST"
+    })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(result) {
+        // Update HTML with the response
+        var outputElement = document.getElementById("output");
+        if (result.error) {
+          outputElement.innerHTML += "<p>" + result.error + "</p>";
+        } else {
+          // Add the warning message
+          outputElement.innerHTML += "<p class='warning'>Prior to performing any electrical work on the product, always disconnect it from all voltage sources.</p>";
+
+          outputElement.innerHTML += "<p>" + result.response + "</p>";
+        }
+      })
+      .catch(function(error) {
+        console.log("Error:", error);
+      });
+  });
+
+  </script>
+</body>
+</html>
+
