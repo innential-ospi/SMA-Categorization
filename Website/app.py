@@ -13,7 +13,7 @@ app = Flask(__name__)
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Set up OpenAI API credentials
-openai.api_key = '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'
+openai.api_key = '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'
 
 
 def chat(message):
