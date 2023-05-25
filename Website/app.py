@@ -2,6 +2,9 @@ from flask import Flask, send_file, render_template, request, jsonify, send_from
 from sentence_transformers import SentenceTransformer, util
 import openai
 import os
+import PyPDF2
+import time
+import fitz
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -10,7 +13,7 @@ app = Flask(__name__)
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Set up OpenAI API credentials
-openai.api_key = ''
+openai.api_key = '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'
 
 
 def chat(message):
@@ -47,14 +50,10 @@ def get_name_of_files():
 
 def get_text_from_file(file_path):
     # Read the PDF file and extract text
-    import PyPDF2
+    pdf_file = fitz.open(file_path)
+    number_pages = len(pdf_file)
 
-    pdfFileObj = open(file_path, 'rb')
-    pdfReader = PyPDF2.PdfReader(pdfFileObj)
-    number_pages = len(pdfReader.pages)
-    pageObj = pdfReader.pages[0]
-
-    return pdfReader, number_pages
+    return pdf_file, number_pages
 
 def find_solution_in_page(path, description):
     # Find the page with the solution in the PDF file
@@ -66,10 +65,11 @@ def find_solution_in_page(path, description):
     highest_sim = []
     for i in range(3, pages_number):
         # Extracting text from page
-        page = document.pages[i].extract_text()
+        page = document.load_page(i)
+        page_text = page.get_text("text")
 
         # Encode all sentences from page
-        page = model.encode(page)
+        page = model.encode(page_text)
         cos_sim_2 = util.cos_sim(page, embeddings_problem_description)
         highest_sim.append([cos_sim_2[0][0], i])
 
@@ -114,12 +114,14 @@ def ask_gpt(description, path, page, one_page):
 
     if one_page == 1:
         for i in range(page - 1, page):
-            page = document.pages[i].extract_text()
-            user_input = user_input + ". " + page
+            page_obj = document.load_page(i)
+            page_text = page_obj.get_text("text")
+            user_input += ". " + page_text
     else:
         for i in range(page, page + 2):
-            page = document.pages[i].extract_text()
-            user_input = user_input + ". " + page
+            page_obj = document.load_page(i)
+            page_text = page_obj.get_text("text")
+            user_input += ". " + page_text
 
     response = chat(user_input)
     return response
@@ -175,6 +177,7 @@ def search():
     print("Similar documents: ", sorted_manuals)
 
     path = find_path_to_database() + '/' + sorted_manuals[0]
+    print(path)
     solution = "No code description found"
     step_by_step = "No description found"
 
