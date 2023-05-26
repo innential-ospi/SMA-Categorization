@@ -1,20 +1,31 @@
-from flask import Flask, send_file, render_template, request, jsonify, send_from_directory
+from flask import Flask, send_file, render_template, request, jsonify, Response
 from sentence_transformers import SentenceTransformer, util
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_httpauth import HTTPBasicAuth
 import openai
 import os
-import PyPDF2
-import time
 import fitz
 
 # Initialize Flask app
 app = Flask(__name__)
+auth = HTTPBasicAuth()
+
+# Set up credentials
+users = {
+    "innential": generate_password_hash("Innential2023")
+}
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users:
+        return check_password_hash(users.get(username), password)
+    return False
 
 # Set up SentenceTransformer model
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Set up OpenAI API credentials
-openai.api_key = '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'
-
+openai.api_key = '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'
 
 def chat(message):
     # Use OpenAI Chat API to generate a response
@@ -127,6 +138,7 @@ def ask_gpt(description, path, page, one_page):
     return response
 
 @app.route("/gpt-step-by-step", methods=["POST"])
+@auth.login_required
 def gpt_step_by_step():
     global description_global
     global filename_global
@@ -150,16 +162,19 @@ def gpt_step_by_step():
 
 #Request to get the pdf file
 @app.route("/open-pdf/<filename>")
+@auth.login_required
 def open_pdf(filename):
     file_path = find_path_to_database() + '/' + filename
     print("Path to pdf manual:", file_path)
     return send_file(file_path, as_attachment=True)
 
 @app.route("/", methods=["GET"])
+@auth.login_required
 def index():
     return render_template("index.html")
 
 @app.route("/search", methods=["POST"])
+@auth.login_required
 def search():
     global description_global
     global filename_global
@@ -178,7 +193,7 @@ def search():
 
     path = find_path_to_database() + '/' + sorted_manuals[0]
     print(path)
-    solution = "No code description found"
+    solution = "No description found"
     step_by_step = "No description found"
 
     # Check if the description exists
