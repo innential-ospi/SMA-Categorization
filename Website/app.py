@@ -1,4 +1,5 @@
-from flask import Flask, send_file, render_template, request, jsonify, Response
+from flask import Flask, send_file, render_template, request, jsonify, Response, session
+from flask_session import Session  # Import Session
 from sentence_transformers import SentenceTransformer, util
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_httpauth import HTTPBasicAuth
@@ -9,6 +10,11 @@ import fitz
 # Initialize Flask app
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+
+# Configure session
+app.config['SECRET_KEY'] = 'secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)  # Initialize Session
 
 # Set up credentials
 users = {
@@ -25,7 +31,7 @@ def verify_password(username, password):
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Set up OpenAI API credentials
-openai.api_key = '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'
+openai.api_key = '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'
 
 def chat(message):
     # Use OpenAI Chat API to generate a response
@@ -140,8 +146,10 @@ def ask_gpt(description, path, page, one_page):
 @app.route("/gpt-step-by-step", methods=["POST"])
 @auth.login_required
 def gpt_step_by_step():
-    global description_global
-    global filename_global
+    description_global = session.get("description")
+    filename_global = session.get("filename")
+
+    print("Des: ",description_global)
 
     if description_global:
         description = description_global
@@ -176,9 +184,6 @@ def index():
 @app.route("/search", methods=["POST"])
 @auth.login_required
 def search():
-    global description_global
-    global filename_global
-
     # Handle the POST request for searching manuals
     data = request.get_json()
     model = data.get("serialNumber")
@@ -203,9 +208,9 @@ def search():
     exact_file = sorted_manuals[0]
     similar_files = sorted_manuals[1:]
 
-    # Set global variables
-    description_global = description
-    filename_global = exact_file
+    #pass values through session
+    session["description"] = description
+    session["filename"] = exact_file
 
     response = {
         "exact_file": exact_file,
