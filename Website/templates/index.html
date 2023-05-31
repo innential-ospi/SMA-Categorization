@@ -30,7 +30,10 @@
       padding: 1px;
       border-radius: 10px;
       margin-bottom: 20px;
+      text-align: center;
+
     }
+
 
     .result-bar {
       background-color: #174371;
@@ -147,12 +150,13 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
   </style>
 </head>
 <body>
   <div class="container">
     <div class="title-bar">
-      <h1>Service Console</h1>
+      <h2>SMA Service Console</h2>
     </div>
 
     <form id="searchForm">
@@ -223,7 +227,9 @@
   </div>
 
   <div class="results-container">
-    <h1 class="result-bar">Result</h1>
+    <div class="title-bar">
+      <h2>Result</h2>
+    </div>
     <div id="loader" class="loader"></div>
     <div id="output">
 
@@ -298,9 +304,10 @@
             var stepBy = result.step_by_step;
 
             // Highlight exact file and provide link to open PDF in a new window
-            outputElement.innerHTML = "<p><strong><a href='/open-pdf/" + exactFile + "' target='_blank'>" + exactFile + "</strong></a> Page: " + page_solution + "</p>";
+            outputElement.innerHTML += "<p><div>Similar documents:</div></p>";
+            outputElement.innerHTML = "<p><a href='/open-pdf/" + exactFile + "' target='_blank'>" + exactFile + "</a> " + page_solution + "</p>";
 
-            outputElement.innerHTML += "<p><strong>Other:</strong></p>";
+            outputElement.innerHTML += "<p><div>Similar documents:</div></p>";
             for (var i = 0; i < similarFiles.length; i++) {
               outputElement.innerHTML += "<p><a href='/open-pdf/" + similarFiles[i] + "'target='_blank' rel='noopener noreferrer'>" + similarFiles[i] + "</a></p>";
             }
@@ -333,9 +340,6 @@
         if (result.error) {
           outputElement.innerHTML += "<p>" + result.error + "</p>";
         } else {
-          // Add the warning message
-          outputElement.innerHTML += "<p class='warning'>Prior to performing any electrical work on the product, always disconnect it from all voltage sources.</p>";
-
           outputElement.innerHTML += "<p>" + result.response + "</p>";
         }
       })

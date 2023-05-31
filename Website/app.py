@@ -120,7 +120,7 @@ def find_similarities(manuals, sensor):
 
     sorted_manuals = []
     for score, i, j in similar_docs:
-        if score > 0.3:
+        if score > 0.30:
             sorted_manuals.append(manuals[i])
 
     return similar_docs, sorted_manuals
@@ -203,12 +203,13 @@ def search():
 
     path = find_path_to_database() + '/' + sorted_manuals[0]
     print(path)
-    solution = "No description found"
-    step_by_step = "No description found"
+    solution = "Description not found"
+    step_by_step = "Description not found"
 
     # Check if the description exists
     if description:
         solution, one_page = find_solution_in_page(path, description)
+        solution = "Page " + str(solution)
 
     exact_file = sorted_manuals[0]
     similar_files = sorted_manuals[1:]
