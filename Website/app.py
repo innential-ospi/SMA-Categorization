@@ -129,7 +129,7 @@ def ask_gpt(description, path, page, one_page):
     # Use GPT-3.5 to generate step-by-step instructions
     document, pages_number = get_text_from_file(path)
     language = session.get("language")
-    user_input = "Extract answer for this problem (point by point, write answer in" + language +"): " + description + ", from text:"
+    user_input = "Extract answer for this problem (point by point without changing anything, translate to" + language +"): " + description + ", from text:"
 
     if one_page == 1:
         for i in range(page - 1, page):
