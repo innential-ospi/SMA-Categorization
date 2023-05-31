@@ -198,6 +198,13 @@
       <label for="event-description">Event/Error Code Description:</label>
       <textarea id="event-description" name="event-description"></textarea><br><br>
 
+      <label for="lang">Language:</label>
+      <select id="lang" name="lang">
+        <option value="English">English</option>
+        <option value="German">German</option>
+        <option value="French">French</option>
+      </select><br><br>
+
       <label for="used-by">Used By:</label>
       <select id="used-by" name="used-by">
         <option value="Service">Service</option>
@@ -248,6 +255,7 @@
       var material = document.getElementById("material").value;
       var eventCode = document.getElementById("event-code").value;
       var eventDescription = document.getElementById("event-description").value;
+      var lang = document.getElementById("lang").value;
       var usedBy = document.getElementById("used-by").value;
       var type = document.getElementById("type").value;
 
@@ -258,6 +266,7 @@
         material: material,
         eventCode: eventCode,
         eventDescription: eventDescription,
+        lang: lang,
         usedBy: usedBy,
         type: type
       };

@@ -128,7 +128,8 @@ def find_similarities(manuals, sensor):
 def ask_gpt(description, path, page, one_page):
     # Use GPT-3.5 to generate step-by-step instructions
     document, pages_number = get_text_from_file(path)
-    user_input = "Extract answer for this problem (point by point): " + description + ", from text:"
+    language = session.get("language")
+    user_input = "Extract answer for this problem (point by point, write answer in" + language +"): " + description + ", from text:"
 
     if one_page == 1:
         for i in range(page - 1, page):
@@ -157,7 +158,7 @@ def gpt_step_by_step():
         filename = filename_global
 
         print("GPT 3.5 step by step")
-        print("Problem describtion:",description,"Filename:", filename)
+        print("Problem description:",description,"Filename:", filename)
 
         path = find_path_to_database() + '/' + filename
 
@@ -189,6 +190,9 @@ def search():
     data = request.get_json()
     model = data.get("serialNumber")
     error = data.get("eventCode")
+    lang = data.get("lang")
+
+    print("Language:", lang)
     description = data.get("eventDescription")
 
     # Check if the model exists in the manuals database
@@ -212,6 +216,7 @@ def search():
     #pass values through session
     session["description"] = description
     session["filename"] = exact_file
+    session["language"] = lang
 
     response = {
         "exact_file": exact_file,
