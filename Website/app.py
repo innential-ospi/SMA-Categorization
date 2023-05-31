@@ -3,6 +3,7 @@ from flask_session import Session  # Import Session
 from sentence_transformers import SentenceTransformer, util
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_httpauth import HTTPBasicAuth
+from env import OPENAI_KEY, LOGIN, PASS
 import openai
 import os
 import fitz
@@ -18,7 +19,7 @@ Session(app)  # Initialize Session
 
 # Set up credentials
 users = {
-    "innential": generate_password_hash("Innential2023")
+    LOGIN : generate_password_hash(PASS)
 }
 
 @auth.verify_password
@@ -31,7 +32,7 @@ def verify_password(username, password):
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Set up OpenAI API credentials
-openai.api_key = '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'
+openai.api_key = OPENAI_KEY
 
 def chat(message):
     # Use OpenAI Chat API to generate a response

@@ -120,6 +120,33 @@
     .results-container {
       margin-left: 50px;
     }
+
+    .loader {
+      border: 4px solid #f3f3f3; /* Light grey */
+      border-top: 4px solid #3498db; /* Blue */
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none; /* Initially hide the loader */
+    }
+
+    .loader-red {
+      border: 4px solid #f3f3f3; /* Light grey */
+      border-top: 4px solid #e74c3c; /* Red */
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none; /* Initially hide the loader */
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -190,19 +217,30 @@
 
   <div class="results-container">
     <h1 class="result-bar">Result</h1>
+    <div id="loader" class="loader"></div>
     <div id="output">
+
       <!-- Results will be displayed here -->
     </div>
-
+    <div id="loader-red" class="loader loader-red"></div>
     <div id="stepByStepAnswer" class="step-by-step-answer">
       <p id="stepByStepText" class="step-by-step-text"></p>
     </div>
     <button id="stepByStepButton">Step by step GPT</button>
   </div>
 
+
   <script>
     document.getElementById("searchForm").addEventListener("submit", function(event) {
       event.preventDefault(); // Prevent form submission
+
+      // Clear the existing response
+      var outputElement = document.getElementById("output");
+      outputElement.innerHTML = "";
+
+      // Show the loader
+      var loader = document.getElementById("loader");
+      loader.style.display = "block";
 
       var caseOwner = document.getElementById("case-owner").value;
       var serialNumber = document.getElementById("serial-number").value;
@@ -236,6 +274,10 @@
           return response.json();
         })
         .then(function(result) {
+          // Hide the loader when the response is received
+          loader.style.display = "none";
+
+
           // Update HTML with search results
           var outputElement = document.getElementById("output");
           if (result.error) {
@@ -264,6 +306,10 @@
 
     document.getElementById("stepByStepButton").addEventListener("click", function() {
     // Fetch the response from the /gpt-step-by-step endpoint
+    // Show the red loader
+    var loaderRed = document.getElementById("loader-red");
+    loaderRed.style.display = "block";
+
     fetch("/gpt-step-by-step", {
       method: "POST"
     })
@@ -271,6 +317,8 @@
         return response.json();
       })
       .then(function(result) {
+        // Hide the red loader when the response is received
+        loaderRed.style.display = "none";
         // Update HTML with the response
         var outputElement = document.getElementById("output");
         if (result.error) {
