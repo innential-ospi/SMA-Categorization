@@ -19,3 +19,8 @@ User interface is divided into two separate blocks:
 - Service console - technician can enter the serial number of the device and the problem description
 - Results - the application will display the results of the search: manual for a given device, similar documents, page where the answer for the problem might be.
 - Step by step button - the application will display the summary of the problem description based on the GPT model.
+
+
+### CUDA installation
+- Installation Docs: https://linuxhint.com/install-cuda-on-ubuntu-22-04-lts/
+- The program will print if GPU is available

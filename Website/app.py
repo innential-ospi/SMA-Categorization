@@ -36,18 +36,20 @@ openai.api_key = OPENAI_KEY
 
 def chat(message):
     # Use OpenAI Chat API to generate a response
-    response = openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=message,
-        max_tokens=500,
-        n=1,
-        stop=None,
-        temperature=0.4,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0
+    # The structure is different as with davinci-003
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        temperature = 0,
+        max_tokens = 400,
+        top_p=0.6,
+        frequency_penalty=0.5,
+        presence_penalty=0,
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": message},
+        ]
     )
-    return response.choices[0].text.strip()
+    return response['choices'][0]['message']['content'].strip()
 
 
 def find_path_to_database():
@@ -129,7 +131,7 @@ def ask_gpt(description, path, page, one_page):
     # Use GPT-3.5 to generate step-by-step instructions
     document, pages_number = get_text_from_file(path)
     language = session.get("language")
-    user_input = "Extract answer for this problem (point by point without changing anything, translate to" + language +"): " + description + ", from text:"
+    user_input = "Extract answer for this problem step by step based on this text: " + description + " and translate to " + language + " and remain the same step by step formating"
 
     if one_page == 1:
         for i in range(page - 1, page):

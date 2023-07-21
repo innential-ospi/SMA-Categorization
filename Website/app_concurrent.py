@@ -8,6 +8,7 @@ import openai
 import os
 import fitz
 import time
+import torch
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -29,27 +30,35 @@ def verify_password(username, password):
         return check_password_hash(users.get(username), password)
     return False
 
+if torch.cuda.is_available():
+    print('CUDA is available')
+    device = torch.device('cuda')
+else:
+    print("CUDA is not available, using CPU instead")
+    device = torch.device('cpu')
+
 # Set up SentenceTransformer model
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('all-MiniLM-L6-v2',device = device)
 
 # Set up OpenAI API credentials
 openai.api_key = OPENAI_KEY
 
 def chat(message):
     # Use OpenAI Chat API to generate a response
-    response = openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=message,
-        max_tokens=500,
-        n=1,
-        stop=None,
-        temperature=0.4,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0
+    # The structure is different as with davinci-003
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        temperature = 0,
+        max_tokens = 400,
+        top_p=0.6,
+        frequency_penalty=0.5,
+        presence_penalty=0,
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": message},
+        ]
     )
-    return response.choices[0].text.strip()
-
+    return response['choices'][0]['message']['content'].strip()
 
 def find_path_to_database():
     # Get the path to the database directory
@@ -138,7 +147,12 @@ def ask_gpt(description, path, page, one_page):
             page_text = page_obj.get_text("text")
             user_input += ". " + page_text
 
+    start = time.time()
     response = chat(user_input)
+    end = time.time()
+
+    print("GPU response time: ", end - start)
+
     return response
 
 @app.route("/gpt-step-by-step", methods=["POST"])
@@ -228,7 +242,7 @@ def search():
 
     end = time.time()
 
-    print(end - start)
+    print("Total time: ", end - start)
     return jsonify(response)
 
 if __name__ == "__main__":
